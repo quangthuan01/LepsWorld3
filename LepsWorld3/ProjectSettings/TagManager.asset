@@ -8,6 +8,7 @@ TagManager:
   - trai
   - phai
   - tren
+  - coin
   layers:
   - Default
   - TransparentFX

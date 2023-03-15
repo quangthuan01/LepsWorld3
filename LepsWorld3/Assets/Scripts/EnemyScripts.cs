@@ -4,10 +4,7 @@ using UnityEngine;
 
 public class EnemyScripts : MonoBehaviour
 {
-    public float
-
-            start,
-            end;
+    public float start, end;
 
     private bool isRight; // isRight == true di chuyen phai,nguoc lai
 
@@ -93,5 +90,4 @@ public class EnemyScripts : MonoBehaviour
     {
         this.player = player;
     }
-
 }
