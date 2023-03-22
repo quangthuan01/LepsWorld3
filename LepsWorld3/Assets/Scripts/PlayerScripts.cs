@@ -13,7 +13,7 @@ public class PlayerScripts : MonoBehaviour
     public bool isPlaying = true;
     private int score = 0;
     public TMP_Text scoreText;
-    // 
+    public AudioSource soundScore;
     // Start is called before the first frame update
     void Start()
     {
@@ -23,20 +23,29 @@ public class PlayerScripts : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
+    {   
 
         Vector2 scale = transform.localScale;
 
         animator.SetBool("isRunning", false);
 
+        Quaternion rotation = psKhoi.transform.localRotation;
+
         if (Input.GetKey(KeyCode.RightArrow))
         {
+            rotation.y = 180;
+            psKhoi.transform.localRotation = rotation;
+            psKhoi.Play();
             animator.SetBool("isRunning", true);
             scale.x = 1;
             transform.Translate(Vector3.right * 5f * Time.deltaTime);
         }
         if (Input.GetKey(KeyCode.LeftArrow))
-        {   animator.SetBool("isRunning", true);
+        {   
+            rotation.y = 0;
+            psKhoi.transform.localRotation = rotation;
+            psKhoi.Play();
+            animator.SetBool("isRunning", true);
             scale.x = -1;
             transform.Translate(Vector3.left * 5f * Time.deltaTime);
         }
@@ -47,9 +56,8 @@ public class PlayerScripts : MonoBehaviour
         {
             if (isNen)
             {
-                psKhoi.Play();
                 //transform.Translate(Vector3.up * 5f *Time.deltaTime);
-                rigidbody2D.AddForce(new Vector2(0, 200));
+                rigidbody2D.AddForce(new Vector2(0, 350));
                 isNen = false;
             }
         }
@@ -60,17 +68,8 @@ public class PlayerScripts : MonoBehaviour
     //show menu
     if(Input.GetKeyDown(KeyCode.P))
     {   
-        if(isPlaying)
-        {
-            showMenu();
-        }
-        else
-        {
-            menu.SetActive(false);
-            Time.timeScale = 1;//choi game
-            isPlaying = true;
-        }
         
+        showMenu();
     }
     }
 
@@ -87,18 +86,29 @@ public class PlayerScripts : MonoBehaviour
 
     public void showMenu()
     {
-        menu.SetActive(true);
+        if(isPlaying)
+        {
+            menu.SetActive(true);
         Time.timeScale = 0;//dung game
         isPlaying = false;
+        }
+        else
+        {
+            menu.SetActive(false);
+            Time.timeScale = 1;//choi game
+            isPlaying = true;
+        }
     }
 
-    // public void OnTriggerEnter2D(OnCollisionEnter2D collision){
+    private void OnTriggerEnter2D(Collider2D collider){
 
-    //     if(collision.gameObject.tag == "coin"){
-    //         score+=10;
-            
-    //         Destroy(collision.gameObject);
-    //     }
+        if(collider.gameObject.tag == "coin"){
+            soundScore.Play();
+            score+=10; 
+            scoreText.text = score + " x";
+            Destroy(collider.gameObject);
 
-    // }
+        }
+
+    }
 }
