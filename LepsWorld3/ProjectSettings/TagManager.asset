@@ -9,6 +9,8 @@ TagManager:
   - phai
   - tren
   - coin
+  - quaman
+  - checkpoints
   layers:
   - Default
   - TransparentFX

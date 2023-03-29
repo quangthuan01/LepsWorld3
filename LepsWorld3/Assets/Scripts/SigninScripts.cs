@@ -24,6 +24,8 @@ public class SigninScripts : MonoBehaviour
 
     public Button loginButton;
 
+    public static  InformationModel informationModel;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -96,7 +98,7 @@ public class SigninScripts : MonoBehaviour
         else
         {
             var jsonString = request.downloadHandler.text.ToString();// nhận dữ liệu từ server
-            InformationModel informationModel = JsonConvert.DeserializeObject<InformationModel>(jsonString);//   chuyển đổi từ json sang object
+            informationModel = JsonConvert.DeserializeObject<InformationModel>(jsonString);//   chuyển đổi từ json sang object
             if (informationModel.status == 1)
             {
                 SceneManager.LoadScene(1);
@@ -109,4 +111,7 @@ public class SigninScripts : MonoBehaviour
             }
         }
     }
+
+   
+    
 }

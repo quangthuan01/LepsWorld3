@@ -1,7 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using TMPro;
+using UnityEngine.UI;
+using UnityEngine.Networking;
+using Newtonsoft.Json;  
+using System.Text;
+using System;
 
 public class PlayerScripts : MonoBehaviour
 {
@@ -19,6 +25,24 @@ public class PlayerScripts : MonoBehaviour
     {
         rigidbody2D = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+
+        // load lai diem cua player, vi tri cua player
+        if(SigninScripts.informationModel.score >= 0){
+            score = SigninScripts.informationModel.score;
+            scoreText.text = score + " x";
+        }      
+
+        if(SigninScripts.informationModel.positionX != null 
+        && SigninScripts.informationModel.positionY != null 
+        && SigninScripts.informationModel.positionZ != null){
+
+            var positionX = float.Parse(SigninScripts.informationModel.positionX);
+            var positionY = float.Parse(SigninScripts.informationModel.positionY);
+            var positionZ = float.Parse(SigninScripts.informationModel.positionZ);
+
+            transform.position = new Vector3(positionX, positionY, positionZ);
+
+        }
     }
 
     // Update is called once per frame
@@ -82,6 +106,10 @@ public class PlayerScripts : MonoBehaviour
             isNen = true;
             // Destroy (gameObject);
         }
+
+        if(collision.gameObject.tag == "quaman"){
+            SceneManager.LoadScene(3);
+        }
     }
 
     public void showMenu()
@@ -89,8 +117,8 @@ public class PlayerScripts : MonoBehaviour
         if(isPlaying)
         {
             menu.SetActive(true);
-        Time.timeScale = 0;//dung game
-        isPlaying = false;
+            Time.timeScale = 0;//dung game
+            isPlaying = false;
         }
         else
         {
@@ -110,5 +138,100 @@ public class PlayerScripts : MonoBehaviour
 
         }
 
+        if(collider.gameObject.tag == "checkpoints"){
+            SavePosition();
+        }
+
+    }
+
+    public void SaveScore(){
+        var user = SigninScripts.informationModel.username;
+        ScoreModel scoreModel = new ScoreModel (score, user);
+        StartCoroutine(SaveScoreAPI(scoreModel));
+        SaveScoreAPI(scoreModel);
+    }
+
+    //api luu score
+
+    IEnumerator SaveScoreAPI(ScoreModel scoreModel)
+    {
+        string jsonStringRequest = JsonConvert.SerializeObject(scoreModel);// chuyển đổi từ object sang json
+
+        var request = new UnityWebRequest("https://hoccungminh.dinhnt.com/fpt/save-score", "POST");// gọi API
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonStringRequest);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);// gửi dữ liệu lên server
+        request.downloadHandler = new DownloadHandlerBuffer();// nhận dữ liệu từ server
+        request.SetRequestHeader("Content-Type", "application/json");// gửi dữ liệu dạng json
+        yield return request.SendWebRequest();// gửi dữ liệu lên server
+
+        if (request.result != UnityWebRequest.Result.Success)// kiểm tra kết quả
+        {
+            // errorText.text = "Login Failed";
+            Debug.Log(request.error);
+        }
+        else
+        {
+            var jsonString = request.downloadHandler.text.ToString();// nhận dữ liệu từ server
+            ReponModel scoreReponModel = JsonConvert.DeserializeObject<ReponModel>(jsonString);//   chuyển đổi từ json sang object
+            if (scoreReponModel.status == 1)
+            {
+                showMenu();
+                Debug.Log("Save Score Success");
+            }
+            else
+            {
+                Debug.Log("Save Score Failed");
+            }
+        }
+        request.Dispose();
+    }
+
+
+    public void SavePosition(){
+
+        var user = SigninScripts.informationModel.username;
+        var positionX = transform.position.x;
+        var positionY = transform.position.y;
+        var positionZ = transform.position.z;
+
+        SavePositionModel positionModel = new SavePositionModel (user, positionX.ToString(), positionY.ToString(), positionZ.ToString());
+        StartCoroutine(SaveScoreAPI(positionModel));
+        SaveScoreAPI(positionModel);
+
+    }
+
+     //Save Position
+
+    IEnumerator SaveScoreAPI(SavePositionModel positionModel)
+    {
+        string jsonStringRequest = JsonConvert.SerializeObject(positionModel);// chuyển đổi từ object sang json
+
+        var request = new UnityWebRequest("https://hoccungminh.dinhnt.com/fpt/save-position", "POST");// gọi API
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonStringRequest);
+        request.uploadHandler = new UploadHandlerRaw(bodyRaw);// gửi dữ liệu lên server
+        request.downloadHandler = new DownloadHandlerBuffer();// nhận dữ liệu từ server
+        request.SetRequestHeader("Content-Type", "application/json");// gửi dữ liệu dạng json
+        yield return request.SendWebRequest();// gửi dữ liệu lên server
+
+        if (request.result != UnityWebRequest.Result.Success)// kiểm tra kết quả
+        {
+            // errorText.text = "Login Failed";
+            Debug.Log(request.error);
+        }
+        else
+        {
+            var jsonString = request.downloadHandler.text.ToString();// nhận dữ liệu từ server
+            ReponModel locationReponModel = JsonConvert.DeserializeObject<ReponModel>(jsonString);//   chuyển đổi từ json sang object
+            if (locationReponModel.status == 1)
+            {
+                Debug.Log("Save Score Success");
+            }
+            else
+            {
+                Debug.Log("Save Score Failed");
+                // goi lai api 
+            }
+        }
+        request.Dispose();
     }
 }
