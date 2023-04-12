@@ -101,7 +101,7 @@ public class SigninScripts : MonoBehaviour
             informationModel = JsonConvert.DeserializeObject<InformationModel>(jsonString);//   chuyển đổi từ json sang object
             if (informationModel.status == 1)
             {
-                SceneManager.LoadScene(1);
+                SceneManager.LoadScene(2);
                 Debug.Log("Login Success");
             }
             else
@@ -111,7 +111,4 @@ public class SigninScripts : MonoBehaviour
             }
         }
     }
-
-   
-    
 }

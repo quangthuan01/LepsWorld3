@@ -20,6 +20,7 @@ public class PlayerScripts : MonoBehaviour
     private int score = 0;
     public TMP_Text scoreText;
     public AudioSource soundScore;
+    private bool isRight = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,22 +28,22 @@ public class PlayerScripts : MonoBehaviour
         animator = GetComponent<Animator>();
 
         // load lai diem cua player, vi tri cua player
-        if(SigninScripts.informationModel.score >= 0){
-            score = SigninScripts.informationModel.score;
-            scoreText.text = score + " x";
-        }      
+        // if(SigninScripts.informationModel.score >= 0){
+        //     score = SigninScripts.informationModel.score;
+        //     scoreText.text = score + " x";
+        // }      
 
-        if(SigninScripts.informationModel.positionX != null 
-        && SigninScripts.informationModel.positionY != null 
-        && SigninScripts.informationModel.positionZ != null){
+        // if(SigninScripts.informationModel.positionX != null 
+        // && SigninScripts.informationModel.positionY != null 
+        // && SigninScripts.informationModel.positionZ != null){
 
-            var positionX = float.Parse(SigninScripts.informationModel.positionX);
-            var positionY = float.Parse(SigninScripts.informationModel.positionY);
-            var positionZ = float.Parse(SigninScripts.informationModel.positionZ);
+        //     var positionX = float.Parse(SigninScripts.informationModel.positionX);
+        //     var positionY = float.Parse(SigninScripts.informationModel.positionY);
+        //     var positionZ = float.Parse(SigninScripts.informationModel.positionZ);
 
-            transform.position = new Vector3(positionX, positionY, positionZ);
+        //     transform.position = new Vector3(positionX, positionY, positionZ);
 
-        }
+        // }
     }
 
     // Update is called once per frame
@@ -56,7 +57,8 @@ public class PlayerScripts : MonoBehaviour
         Quaternion rotation = psKhoi.transform.localRotation;
 
         if (Input.GetKey(KeyCode.RightArrow))
-        {
+        {   
+            isRight = true;
             rotation.y = 180;
             psKhoi.transform.localRotation = rotation;
             psKhoi.Play();
@@ -66,6 +68,7 @@ public class PlayerScripts : MonoBehaviour
         }
         if (Input.GetKey(KeyCode.LeftArrow))
         {   
+            isRight = false;
             rotation.y = 0;
             psKhoi.transform.localRotation = rotation;
             psKhoi.Play();
@@ -86,15 +89,28 @@ public class PlayerScripts : MonoBehaviour
             }
         }
 
-    //input.getkey -> nhan giu hoat dong
-    //getkeydowm -> nhan 1 lan hoat dong
-    //getkeyup -> tha ra hoat dong
-    //show menu
-    if(Input.GetKeyDown(KeyCode.P))
-    {   
-        
-        showMenu();
-    }
+            //input.getkey -> nhan giu hoat dong
+            //getkeydowm -> nhan 1 lan hoat dong
+            //getkeyup -> tha ra hoat dong
+            //show menu
+            if(Input.GetKeyDown(KeyCode.P))
+            {   
+                
+                showMenu();
+            }
+
+            //ban dan
+            if(Input.GetKeyDown(KeyCode.S)){
+                
+                var x = transform.position.x * (isRight ? 0.5f : -0.5f);
+                var y = transform.position.y;
+                var z = transform.position.z;
+                GameObject gameObject = (GameObject) Instantiate(
+                    Resources.Load("Prefabs/bullet"), new Vector3(x,y,z), Quaternion.identity
+                );
+                gameObject.GetComponent<BulletScripts>().SetIsRight(isRight);
+            }
+
     }
 
     
@@ -140,8 +156,8 @@ public class PlayerScripts : MonoBehaviour
 
         if(collider.gameObject.tag == "checkpoints"){
             SavePosition();
+            SaveScore();
         }
-
     }
 
     public void SaveScore(){

@@ -11,6 +11,7 @@ TagManager:
   - coin
   - quaman
   - checkpoints
+  - bullet
   layers:
   - Default
   - TransparentFX
